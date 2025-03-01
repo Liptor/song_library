@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"strconv"
-
 	"database/sql"
+	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 
@@ -19,6 +19,12 @@ const (
 	host = "localhost"
 	db_name = "song_library"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file fount")
+	}
+}
 
 func main() {
 	app := fiber.New()
@@ -39,13 +45,12 @@ func main() {
                         id 			SERIAL PRIMARY KEY,
 						releaseDate DATE,
 						text 		TEXT,
-						link		TEXT
-                        "group" 		TEXT NOT NULL,
+						link		TEXT,
+                    	"group" 	TEXT NOT NULL,
 						song  		TEXT
-						
                     )`)
 
-					
+			
 
 	if err != nil {
 		log.Fatal(err)
