@@ -55,7 +55,6 @@ func (h *Handler) CreateSongHandler(c *fiber.Ctx) error  {
 		return err
 	}	
 
-	
 	dbquery := `INSERT INTO songs ("group", song, "releaseDate", text, link) VALUES ($1, $2, $3, $4, $5)`
 
 	_, err = h.DB.Exec(dbquery, 
@@ -74,6 +73,28 @@ func (h *Handler) CreateSongHandler(c *fiber.Ctx) error  {
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"message": "Song added successfully",
 		"data": songdata,
+	})
+}
+
+
+func (h *Handler) DeleteSongHandler(c *fiber.Ctx) error {
+	res := c.Params("id")
+	if res == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Id is necessary")
+	}
+
+	dbquery := `DELETE FROM songs WHERE id=$1`
+
+	_, err := h.DB.Exec(dbquery, res)
+
+	if err != nil {
+		return err
+	}
+
+
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+		"message": "Song deleted successfully",
+		"data":	res,
 	})
 }
 

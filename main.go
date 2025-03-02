@@ -57,9 +57,9 @@ func main() {
 
 	}
 
-	app.Post("/create", h.CreateSongHandler)
+	app.Post("/song", h.CreateSongHandler)
 	// app.Put("/update/:id", handlers.updataSongHandler)
-	// app.Delete("/delete/:id", handlers.deleteSongHandler)
+	app.Delete("/song/:id", h.DeleteSongHandler)
 	// app.Get("/song", handlers.getSongHandler)
 	// app.Get("/song/pagin")
 
