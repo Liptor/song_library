@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"database/sql"
 	"log"
 	"os"
+	"strings"
+
 
 	"net/http"
 	"net/url"
@@ -19,20 +22,21 @@ func NewHandler(db *sql.DB) *Handler {
 	return &Handler{DB: db}
 }
 
-
-func (h *Handler) CreateSongHandler(c *fiber.Ctx) error  {
-	log.Println("Raw request body:", string(c.Body()))
-	path, _ := os.LookupEnv("SONG_URL")
-
-	var songdata struct {
+type Song struct {
 		Group 	string `json:"group"`
 		Song 	string	`json:"song"`
 		ReleaseDate string `json:"releaseDate"`
 		Text 		string `json:"text"`
 		Link		string `json:"link"`
-	}
+}
 
-	if err := c.BodyParser(&songdata); err != nil {
+
+func (h *Handler) CreateSongHandler(c *fiber.Ctx) error  {
+	songdata := new(Song)
+	log.Println("Raw request body:", string(c.Body()))
+	path, _ := os.LookupEnv("SONG_URL")
+
+	if err := c.BodyParser(songdata); err != nil {
 		return err
 	}
 	
@@ -49,11 +53,6 @@ func (h *Handler) CreateSongHandler(c *fiber.Ctx) error  {
 		return err
 	}
 	defer resp.Body.Close()
-
-	if err != nil {
-		log.Println("Error reading answer:", err)
-		return err
-	}	
 
 	dbquery := `INSERT INTO songs ("group", song, "releaseDate", text, link) VALUES ($1, $2, $3, $4, $5)`
 
@@ -94,7 +93,48 @@ func (h *Handler) DeleteSongHandler(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"message": "Song deleted successfully",
-		"data":	res,
 	})
 }
+
+func (h *Handler) UpdataSongHandler(c *fiber.Ctx) error {
+	var songdata map[string]interface{}
+	id := c.Params("id")
+
+	if err := c.BodyParser(&songdata); err != nil {
+		return err
+	}
+
+	setSong := []string{}
+	values := []interface{}{}
+	paramCount := 1
+
+	for field, value := range songdata {
+		if value != "" {
+			escapedField := fmt.Sprintf(`"%s"`, field)
+			setSong = append(setSong, fmt.Sprintf("%s = $%d", escapedField, paramCount))
+			values = append(values, value)
+
+			paramCount++
+		}
+	}
+
+
+	setQuery := strings.Join(setSong, ", ")
+
+	dbquery := fmt.Sprintf("UPDATE songs SET %s WHERE id = $%d", setQuery, paramCount)
+
+	values = append(values, id)
+
+	_, err := h.DB.Exec(dbquery, values...)
+
+
+	if err != nil {
+		log.Println("Unable to add to database: ", err)
+		return err
+	}
+
+	return nil
+
+}
+
 

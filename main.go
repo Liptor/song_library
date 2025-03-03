@@ -33,28 +33,10 @@ func main() {
 
 	h := handlers.NewHandler(db)
 
-
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS songs (
-                        id 			SERIAL PRIMARY KEY,
-						releaseDate DATE,
-						text 		TEXT,
-						link		TEXT,
-                    	"group" 	TEXT NOT NULL,
-						song  		TEXT
-                    )`)
-
-			
-
-	if err != nil {
-		log.Fatal(err)
-
-	}
-
 	app.Post("/song", h.CreateSongHandler)
 	app.Put("/song/:id", h.UpdataSongHandler)
 	app.Delete("/song/:id", h.DeleteSongHandler)
-	// app.Get("/song", handlers.getSongHandler)
-	// app.Get("/song/pagin")
+	// app.Get("/song", h.GetSongHandler)
 
 	app.Listen(":3030")
 }
