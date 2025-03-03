@@ -2,23 +2,16 @@ package main
 
 import (
 	"log"
-	"strconv"
 	"database/sql"
 	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 
+	"github.com/Liptor/song_library/internal/config"
 	"github.com/Liptor/song_library/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 
-const (
-	user = "acer"
-	port = 5432
-	password = "password"
-	host = "localhost"
-	db_name = "song_library"
-)
 
 func init() {
 	if err := godotenv.Load(); err != nil {
@@ -28,8 +21,8 @@ func init() {
 
 func main() {
 	app := fiber.New()
-	portStr := strconv.Itoa(port)
-	dbinfo := "host=" + host + " port=" + portStr + " user=" + user + " password=" + password + " dbname=" + db_name + " sslmode=disable"
+	dbconfig := config.New()
+	dbinfo := "host=" + dbconfig.DB.Host + " port=" + dbconfig.DB.Port + " user=" + dbconfig.DB.User + " password=" + dbconfig.DB.Password + " dbname=" + dbconfig.DB.Name + " sslmode=disable"
 
 	db, err := sql.Open("postgres", dbinfo)
 	if err != nil {
@@ -58,7 +51,7 @@ func main() {
 	}
 
 	app.Post("/song", h.CreateSongHandler)
-	// app.Put("/update/:id", handlers.updataSongHandler)
+	app.Put("/song/:id", h.UpdataSongHandler)
 	app.Delete("/song/:id", h.DeleteSongHandler)
 	// app.Get("/song", handlers.getSongHandler)
 	// app.Get("/song/pagin")
