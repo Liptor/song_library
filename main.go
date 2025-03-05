@@ -36,7 +36,7 @@ func main() {
 	app.Post("/song", h.CreateSongHandler)
 	app.Put("/song/:id", h.UpdataSongHandler)
 	app.Delete("/song/:id", h.DeleteSongHandler)
-	// app.Get("/song", h.GetSongHandler)
+	app.Get("/song", h.GetSongHandler)
 
 	app.Listen(":3030")
 }

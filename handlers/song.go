@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"strconv"
 
 
 	"net/http"
@@ -134,6 +135,58 @@ func (h *Handler) UpdataSongHandler(c *fiber.Ctx) error {
 	}
 
 	return nil
+
+}
+
+func (h *Handler) GetSongHandler(c *fiber.Ctx) error {
+	page, err := strconv.Atoi(c.Query("page"))
+	
+	if err != nil || page < 1 {
+		page = 1 // Default page value
+	}
+
+	limit, err := strconv.Atoi(c.Query("limit"))
+
+	if err != nil || limit < 1 {
+		limit = 10 // Default page value
+	}
+
+	offset := (page - 1) * limit
+
+	rows, err := h.DB.Query(`SELECT id, "group", song, releasedate, text, link FROM songs LIMIT $1 OFFSET $2`, limit, offset)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch items")
+	}
+
+	defer rows.Close()
+
+	items := []map[string]interface{}{} 
+ 
+	for rows.Next() {
+		var id int
+		var group, song, text, link string
+		var releasedate  string
+
+		if err := rows.Scan(&id, &group, &releasedate, &song, &text, &link); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "Failed to scan items")
+		}
+
+		items = append(items, map[string]interface{}{
+			"id": id,
+			"group": group,
+			"song": song,
+			"releasedate": releasedate,
+			"text": text,
+			"link": link,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"page": page,
+		"limit": limit,
+		"items": items,
+	}, "application/json")
 
 }
 
