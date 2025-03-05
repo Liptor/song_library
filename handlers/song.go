@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 
 
 	"net/http"
@@ -153,7 +153,30 @@ func (h *Handler) GetSongHandler(c *fiber.Ctx) error {
 
 	offset := (page - 1) * limit
 
-	rows, err := h.DB.Query(`SELECT id, "group", song, releasedate, text, link FROM songs LIMIT $1 OFFSET $2`, limit, offset)
+	filters := map[string]string{
+		"group": c.Query("group"),
+		"song": c.Query("song"),
+		"text": c.Query("text"),
+		"link": c.Query("link"),
+		"releasedate": c.Query("releasedate"),
+	}
+
+	query := `SELECT id, "group", song, releasedate, text, link FROM songs WHERE 1=1`
+	args := []interface{}{}
+
+	i := 1
+	for key, value := range filters {
+		if value != "" {
+			query += fmt.Sprintf(" AND \"%s\"  = $%d", key, i)
+			args = append(args, value)
+			i++
+		}
+	}
+
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", i, i+1)
+    args = append(args, limit, offset)
+
+	rows, err := h.DB.Query(query, args...)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to fetch items")
@@ -186,7 +209,7 @@ func (h *Handler) GetSongHandler(c *fiber.Ctx) error {
 		"page": page,
 		"limit": limit,
 		"items": items,
-	}, "application/json")
+	})
 
 }
 
