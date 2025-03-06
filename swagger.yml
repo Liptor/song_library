@@ -1,0 +1,164 @@
+swagger: "2.0"
+info:
+  title: An app to store and get songs from song library
+  version: 0.1.0
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /song:
+    get:
+      tags:
+        - song
+      parameters:
+        - name: group
+          in: query
+          type: string
+        - name: song
+          in: query
+          type: string
+        - name: releaseDate
+          in: query
+          type: string
+        - name: text
+          in: query
+          type: string
+        - name: link
+          in: query
+          type: string
+      responses:
+        200:
+          description: list the song
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+              song:
+                type: string
+              releaseDate:
+                type: string
+              text:
+                type: string
+              link:
+                type: string
+        default:
+          description: generic error response
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    post:
+      tags:
+        - song
+      parameters:
+        - name: group
+          in: query
+          type: string
+        - name: song
+          in: query
+          type: string
+        - name: releaseDate
+          in: query
+          type: string
+        - name: text
+          in: query
+          type: string
+        - name: link
+          in: query
+          type: string
+      responses:
+        200:
+          description: list the song
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+              song:
+                type: string
+              releaseDate:
+                type: string
+              text:
+                type: string
+              link:
+                type: string
+        default:
+          description: generic error response
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  /{id}:
+    parameters:
+      - type: integer
+        format: int64
+        name: id
+        in: path
+        required: true
+    put:
+      tags:
+        - song
+      parameters:
+        - name: group
+          in: query
+          type: string
+        - name: song
+          in: query
+          type: string
+        - name: releaseDate
+          in: query
+          type: string
+        - name: text
+          in: query
+          type: string
+        - name: link
+          in: query
+          type: string
+      responses:
+        200:
+          description: list the song
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+              song:
+                type: string
+              releaseDate:
+                type: string
+              text:
+                type: string
+              link:
+                type: string
+        default:
+          description: generic error response
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    delete:
+      tags:
+        - song
+      responses:
+        202:
+          description: Song deleted successfully
+        default:
+          description: error
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+definitions:
+  error:
+    type: object
+    properties:
+      message:
+        type: string
