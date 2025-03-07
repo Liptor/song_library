@@ -14,4 +14,4 @@ COPY static/ ./static/
 
 EXPOSE 80
 
-CMD ["./server", "--port", "80"]
+CMD ["./server", "--port", "3030"]
