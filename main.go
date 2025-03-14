@@ -4,6 +4,7 @@ import (
 	"log"
 	"database/sql"
 	"github.com/joho/godotenv"
+	amqp "github.com/rabbitmq/amqp091-go"
 
 	_ "github.com/lib/pq"
 
@@ -22,6 +23,17 @@ func init() {
 func main() {
 	app := fiber.New()
 	dbconfig := config.New()
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+
+	if err != nil {
+		log.Fatalf("unable to open connect to RabbitMQ server. Error: %s", err)
+	}
+
+	defer func() {
+		_ = conn.Close() // Закрываем подключение в случае удачной попытки
+	}()
+
+
 	dbinfo := "host=" + dbconfig.DB.Host + " port=" + dbconfig.DB.Port + " user=" + dbconfig.DB.User + " password=" + dbconfig.DB.Password + " dbname=" + dbconfig.DB.Name + " sslmode=disable"
 
 	db, err := sql.Open("postgres", dbinfo)
